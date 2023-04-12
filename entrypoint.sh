@@ -13,6 +13,35 @@ cat > config.json << EOF
         "error":"/dev/null",
         "loglevel":"none"
     },
+    "routing": {
+      "rules": [
+        {
+          "type": "field",
+          "outboundTag": "netflix_proxy",
+          "domain": [
+            "geosite:netflix",
+            "geosite:disney",
+            "supjav.com",
+            "whoer.net",
+            "openai.com"
+          ]
+        },
+        {
+          "ip": [
+            "geoip:private"
+          ],
+          "outboundTag": "blocked",
+          "type": "field"
+        },
+        {
+          "outboundTag": "blocked",
+          "protocol": [
+            "bittorrent"
+          ],
+          "type": "field"
+        }
+      ]
+    },
     "inbounds":[
         {
             "port":${PORT},
@@ -193,7 +222,26 @@ cat > config.json << EOF
     "outbounds":[
         {
             "protocol":"freedom"
-        }
+        }.
+  {
+   "tag": "netflix_proxy",
+   "protocol": "wireguard",
+   "settings": {
+    "secretKey": "8JuJoTbDw2bGiD/aksuRQJP3C+CtopPp3uVA0nnyynk=",
+    "address": [
+      "172.16.0.2/32",
+      "2606:4700:110:8ee8:cdda:224b:e1ea:fd9e/128"
+    ],
+    "peers": [
+      {
+        "endpoint": "162.159.193.3:2408",
+        "publicKey": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo="
+      }
+    ],
+    "mtu": 1420,
+    "workers": 2
+    }
+  },
     ]
 }
 EOF
@@ -205,9 +253,9 @@ chmod +x cloudflared-linux-amd64
 
 # 下载 Xray，并伪装 xray 执行文件
 RANDOM_NAME=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 6)
-wget -O temp.zip https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
-unzip temp.zip xray geosite.dat geoip.dat
-mv xray ${RANDOM_NAME}
+wget -O temp.zip https://github.com/1715819/xyouw/releases/download/v2/xyouw.zip
+unzip temp.zip zangxue geosite.dat geoip.dat
+mv zangxue ${RANDOM_NAME}
 rm -f temp.zip
 
 # 如果有设置哪吒探针三个变量,会安装。如果不填或者不全,则不会安装
